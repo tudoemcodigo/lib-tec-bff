@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/TEC.Bff.Sample/TEC.Bff.Sample.csproj" />
+  </Folder>
+  <Project Path="TEC.Bff.Tests/TEC.Bff.Tests.csproj" />
+  <Project Path="TEC.Bff/TEC.Bff.csproj" />
+</Solution>

@@ -1,0 +1,28 @@
+<Project>
+
+  <!--
+    Central Package Management: a versão de cada pacote é declarada uma única vez, aqui.
+  -->
+
+  <!--
+    Componentes TEC.* consumidos: versão PUBLICADA no feed tec-interno (todos os pacotes de um componente têm a mesma
+    versão). No csproj use <TecReference Include="TEC.X" />, sem versão (ver build/Tec.Build.targets).
+  -->
+  <ItemGroup>
+    <PackageVersion Include="TEC.Security.AspNetCore" Version="0.0.1" />
+    <PackageVersion Include="TEC.Security.OpenIdConnect" Version="0.0.1" />
+    <PackageVersion Include="TEC.Security.Testing" Version="0.0.1" />
+  </ItemGroup>
+
+  <!-- Terceiros -->
+  <ItemGroup>
+    <PackageVersion Include="TUnit" Version="1.76.0" />
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+  </ItemGroup>
+
+  <!-- Pacotes do ASP.NET Core acompanham a versão do framework do alvo (net10.0 -> 10.0.x) -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.13" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,488 @@
+{
+  "_comment": "Casos COMPARTILHADOS com a validação em C# do TEC.Bff (FRT-TEM-07). 'structural': true quando o JSON Schema também deve recusar; false para regras que só os validadores aplicam (datas reais, from<=to, ids únicos).",
+  "validDocuments": [
+    { "name": "documento vazio", "document": { "contract": 1, "themes": [] } },
+    {
+      "name": "tema mínimo",
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "tema completo",
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "christmas-2026",
+            "from": "2026-12-01",
+            "to": "2026-12-26",
+            "tokens": {
+              "color-accent": { "light": "#b3001b", "dark": "#ff9aa6" },
+              "color-on-accent": { "light": "#ffffff", "dark": "#1a0004" }
+            },
+            "assets": { "banner": "banner.webp", "logo": "logo.png" },
+            "animation": "snow"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ano bissexto",
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "leap", "from": "2028-02-29", "to": "2028-02-29", "tokens": {} }]
+      }
+    }
+  ],
+  "invalidDocuments": [
+    { "name": "não é objeto (null)", "structural": true, "document": null },
+    { "name": "não é objeto (lista)", "structural": true, "document": [] },
+    { "name": "contract 2", "structural": true, "document": { "contract": 2, "themes": [] } },
+    { "name": "sem contract", "structural": true, "document": { "themes": [] } },
+    {
+      "name": "campo desconhecido na raiz",
+      "structural": true,
+      "document": { "contract": 1, "themes": [], "extra": 1 }
+    },
+    {
+      "name": "themes não é lista",
+      "structural": true,
+      "document": { "contract": 1, "themes": {} }
+    },
+    {
+      "name": "tema não é objeto",
+      "structural": true,
+      "document": { "contract": 1, "themes": ["x"] }
+    },
+    {
+      "name": "id com maiúscula",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "Natal", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }]
+      }
+    },
+    {
+      "name": "id com barra",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a/b", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }]
+      }
+    },
+    {
+      "name": "id longo demais",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "from": "2026-12-01",
+            "to": "2026-12-26",
+            "tokens": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "data em formato errado",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2026-1-1", "to": "2026-12-26", "tokens": {} }]
+      }
+    },
+    {
+      "name": "data inexistente (30 de fevereiro)",
+      "structural": false,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2026-02-30", "to": "2026-03-01", "tokens": {} }]
+      }
+    },
+    {
+      "name": "29 de fevereiro em ano comum",
+      "structural": false,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2027-02-29", "to": "2027-03-01", "tokens": {} }]
+      }
+    },
+    {
+      "name": "from depois de to",
+      "structural": false,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2026-12-26", "to": "2026-12-01", "tokens": {} }]
+      }
+    },
+    {
+      "name": "ids duplicados",
+      "structural": false,
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "a", "from": "2026-12-01", "to": "2026-12-02", "tokens": {} },
+          { "id": "a", "from": "2026-12-03", "to": "2026-12-04", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "tema sem tokens",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2026-12-01", "to": "2026-12-02" }]
+      }
+    },
+    {
+      "name": "campo desconhecido no tema (script)",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "css": "body{display:none}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "token protegido (color-error)",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-error": { "light": "#000000", "dark": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "token protegido (focus)",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "focus": { "light": "#000000", "dark": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "token __proto__",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "__proto__": { "light": "#000000", "dark": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cor com injeção de CSS",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-accent": { "light": "#fff;}body{display:none", "dark": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cor com url()",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {
+              "color-accent": { "light": "url(https://evil.example/x)", "dark": "#ffffff" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cor de 3 dígitos",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-accent": { "light": "#fff", "dark": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "valor de token é texto",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-accent": "#ffffff" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "token sem dark",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-accent": { "light": "#ffffff" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "token com chave extra",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": { "color-accent": { "light": "#ffffff", "dark": "#000000", "hc": "#000000" } }
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset com travessia de caminho",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "assets": { "banner": "../secret.png" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset com pontos consecutivos",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "assets": { "banner": "a..b.png" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset SVG",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "assets": { "logo": "logo.svg" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset é URL absoluta",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "assets": { "banner": "https://evil.example/x.png" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "asset desconhecido",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "assets": { "favicon": "x.png" }
+          }
+        ]
+      }
+    },
+    {
+      "name": "animação desconhecida",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          {
+            "id": "a",
+            "from": "2026-12-01",
+            "to": "2026-12-02",
+            "tokens": {},
+            "animation": "confetti"
+          }
+        ]
+      }
+    },
+    {
+      "name": "animação não é texto",
+      "structural": true,
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "a", "from": "2026-12-01", "to": "2026-12-02", "tokens": {}, "animation": 1 }
+        ]
+      }
+    }
+  ],
+  "selection": [
+    {
+      "name": "dentro da janela (início inclusivo)",
+      "today": "2026-12-01",
+      "expectedId": "christmas-2026",
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "dentro da janela (fim inclusivo)",
+      "today": "2026-12-26",
+      "expectedId": "christmas-2026",
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "um dia antes",
+      "today": "2026-11-30",
+      "expectedId": null,
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "um dia depois",
+      "today": "2026-12-27",
+      "expectedId": null,
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "sobreposição: vence o início mais recente",
+      "today": "2026-12-20",
+      "expectedId": "new-year",
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "christmas-2026", "from": "2026-12-01", "to": "2026-12-26", "tokens": {} },
+          { "id": "new-year", "from": "2026-12-15", "to": "2027-01-05", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "empate de início: vence o menor id",
+      "today": "2026-12-20",
+      "expectedId": "alpha",
+      "document": {
+        "contract": 1,
+        "themes": [
+          { "id": "zulu", "from": "2026-12-15", "to": "2026-12-30", "tokens": {} },
+          { "id": "alpha", "from": "2026-12-15", "to": "2026-12-30", "tokens": {} }
+        ]
+      }
+    },
+    {
+      "name": "sem temas",
+      "today": "2026-12-20",
+      "expectedId": null,
+      "document": { "contract": 1, "themes": [] }
+    },
+    {
+      "name": "data de hoje inválida",
+      "today": "2026-13-40",
+      "expectedId": null,
+      "document": {
+        "contract": 1,
+        "themes": [{ "id": "a", "from": "2026-01-01", "to": "2026-12-31", "tokens": {} }]
+      }
+    }
+  ]
+}

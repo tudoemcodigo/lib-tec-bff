@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:tudoemcodigo:lib-tec-web:themes:1",
+  "title": "Documento de temas sazonais (contrato 1)",
+  "description": "Fonte da verdade do manifesto (FRT-TEM-01/07). Regras que o JSON Schema não expressa e que os validadores (TypeScript e C#) aplicam: datas reais do calendário, from <= to, ids únicos e contraste WCAG AA.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "themes"],
+  "properties": {
+    "contract": { "const": 1 },
+    "themes": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/theme" }
+    }
+  },
+  "$defs": {
+    "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["light", "dark"],
+      "properties": {
+        "light": { "$ref": "#/$defs/color" },
+        "dark": { "$ref": "#/$defs/color" }
+      }
+    },
+    "asset": {
+      "type": "string",
+      "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._-]{0,63}\\.(png|webp|avif)$"
+    },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "tokens"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+        "from": { "$ref": "#/$defs/date" },
+        "to": { "$ref": "#/$defs/date" },
+        "tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "color-bg": { "$ref": "#/$defs/pair" },
+            "color-surface": { "$ref": "#/$defs/pair" },
+            "color-text": { "$ref": "#/$defs/pair" },
+            "color-text-muted": { "$ref": "#/$defs/pair" },
+            "color-border": { "$ref": "#/$defs/pair" },
+            "color-border-subtle": { "$ref": "#/$defs/pair" },
+            "color-accent": { "$ref": "#/$defs/pair" },
+            "color-on-accent": { "$ref": "#/$defs/pair" },
+            "color-accent-subtle": { "$ref": "#/$defs/pair" },
+            "color-table-header": { "$ref": "#/$defs/pair" },
+            "color-row-hover": { "$ref": "#/$defs/pair" },
+            "shell-bg": { "$ref": "#/$defs/pair" },
+            "shell-hover": { "$ref": "#/$defs/pair" },
+            "shell-active": { "$ref": "#/$defs/pair" },
+            "shell-border": { "$ref": "#/$defs/pair" },
+            "shell-text": { "$ref": "#/$defs/pair" },
+            "shell-text-muted": { "$ref": "#/$defs/pair" },
+            "shell-accent": { "$ref": "#/$defs/pair" }
+          }
+        },
+        "assets": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "banner": { "$ref": "#/$defs/asset" },
+            "logo": { "$ref": "#/$defs/asset" }
+          }
+        },
+        "animation": { "enum": ["none", "snow"] }
+      }
+    }
+  }
+}

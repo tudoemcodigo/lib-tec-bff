@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Configurações de build, segurança, AOT e metadados comuns: ..\Directory.Build.props -->
+
+  <PropertyGroup>
+    <RootNamespace>TEC.Bff</RootNamespace>
+    <Description>Backend for Frontend (BFF) para SPA: login OpenID Connect com tokens guardados no servidor, cookie de sessão HttpOnly, proxy da API com bearer, proteção CSRF e hospedagem do HTML com CSP estrita por nonce.</Description>
+    <PackageTags>bff;spa;oidc;csp;yarp;security;aspnetcore;tec</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Yarp.ReverseProxy" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TecReference Include="TEC.Security.AspNetCore" />
+    <TecReference Include="TEC.Security.OpenIdConnect" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Exemplo mínimo de host com o BFF; compila no CI junto da solução (os trechos do README vêm daqui). Nunca vira pacote. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TEC.Bff\TEC.Bff.csproj" />
+  </ItemGroup>
+
+</Project>

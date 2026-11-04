@@ -1,0 +1,4 @@
+# Falsos positivos revisados do gitleaks (um por linha: arquivo:regra:linha). Motivo de cada um:
+#
+# UUID de exemplo usado como valor do cabeçalho Idempotency-Key no teste do proxy; não é credencial.
+TEC.Bff.Tests/ProxyTests.cs:generic-api-key:39
