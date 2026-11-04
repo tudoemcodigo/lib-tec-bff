@@ -4,7 +4,7 @@
 
 # ⚙️ Workflows do TEC.Bff
 
-Os dois workflows chamam os reutilizáveis de `tudoemcodigo/tec-workflows@v1`. **Ainda não foram executados**: o repositório remoto `tudoemcodigo/lib-tec-bff` não existe e nada foi publicado.
+Os dois workflows chamam os reutilizáveis de `tudoemcodigo/tec-workflows@v1`. O repositório `tudoemcodigo/lib-tec-bff` foi criado em 2026-11-04. A primeira execução do CI falhou no restore (`NU1403`: o `packages.lock.json` guardava o hash de pacotes `TEC.Security` empacotados localmente, diferentes dos publicados); os locks foram regenerados contra o feed. O `release.yml` ainda não foi executado.
 
 | Workflow | Gatilhos | Permissões | O que faz |
 |---|---|---|---|
