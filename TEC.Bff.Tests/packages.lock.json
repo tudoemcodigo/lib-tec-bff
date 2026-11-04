@@ -12,7 +12,7 @@
         "type": "Direct",
         "requested": "[0.0.1, )",
         "resolved": "0.0.1",
-        "contentHash": "8B9hmOm+RsJ+IB8KqmQRqDo1ODqwLiHAqiGZ64qW7X/QmVlf3Jz5uo1x6BxPfDPvzYH/frZsAY2yfrmknA1pyw==",
+        "contentHash": "plzn5hgOVYvdnGKTothfJA60mPrcZwwsDxKW6P3NjdwlQoEm0IXbybpkW2k90YBgy+RFUPtc/CjAOdVUcKhCvw==",
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "10.0.13",
@@ -206,7 +206,7 @@
       "TEC.Security": {
         "type": "Transitive",
         "resolved": "0.0.1",
-        "contentHash": "OTzAnnE+8/1TutlAXh2y18R0vZB1fE8behWaIEBDUqBkgyQc1I6jDQ3TQLMhaPXPtM1MdN3/LTXoOZzLRMPqmg==",
+        "contentHash": "5Uf1vXdLUcRMidoQa+4mjVMD5WBhYO8n/goLWKpukrfTedZlS8BhKOj0mAxx0gcpdaxevJWunRByJh+Ej/8O9A==",
         "dependencies": {
           "Polly.Core": "8.8.0",
           "TEC.Core": "0.0.1"
@@ -254,7 +254,7 @@
         "type": "CentralTransitive",
         "requested": "[0.0.1, )",
         "resolved": "0.0.1",
-        "contentHash": "u7XFafNDObL1gvzAEXBMZ0IB6Ec+o2ZQ8lb7yyN7TRaGvKeA6KbI1MkNrtAGQvoEGSL6tG2umyZ7oCAG5cURcQ==",
+        "contentHash": "CN4tJx4cox4AK4ACkUgIsKR1c+dCosmBKcKYhUt33N1q7P+YWCiJhMGig7wNBz5xBJhmqzfTcRwP/VIg9Q6Qgg==",
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "10.0.13",
@@ -274,7 +274,7 @@
         "type": "CentralTransitive",
         "requested": "[0.0.1, )",
         "resolved": "0.0.1",
-        "contentHash": "vH/Sg9MGsxMBxsLRPOet5NJ0VBqTc68dZxrezWX7E5P+XN+RGzFS45WbJNNcJ/Fe8EmRV25zLuhDRWZgLKQZRQ==",
+        "contentHash": "zJS0l33VsUERfIk8/JUXiE+xiyo4Ovpff3NSUYhJyiaRmLkUhtzq+jZfbKIbaD+C4/KEkF5rfPJVuGxpXSEEZg==",
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.13",
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "10.0.13",
