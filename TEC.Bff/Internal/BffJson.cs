@@ -26,13 +26,33 @@ internal sealed class TokenEndpointResponse
     [JsonPropertyName("token_type")]
     public string? TokenType { get; init; }
 
+    [JsonPropertyName("id_token")]
+    public string? IdToken { get; init; }
+
     public override string ToString() => "TokenEndpointResponse { redigido }";
 }
+
+/// <summary>Corpo de <c>POST /bff/login/password</c>. O <c>ToString()</c> não revela a senha.</summary>
+internal sealed class PasswordLoginRequest
+{
+    public string? Username { get; init; }
+
+    public string? Password { get; init; }
+
+    public string? ReturnUrl { get; init; }
+
+    public override string ToString() => "PasswordLoginRequest { redigido }";
+}
+
+/// <summary>Resposta do login por senha aceito: para onde a SPA navega (caminho local já conferido).</summary>
+internal sealed record PasswordLoginResponse(string ReturnUrl);
 
 /// <summary>Metadados JSON gerados em compilação (compatível com Native AOT).</summary>
 [JsonSerializable(typeof(ApiResponse))]
 [JsonSerializable(typeof(UserResponse))]
 [JsonSerializable(typeof(TokenEndpointResponse))]
+[JsonSerializable(typeof(PasswordLoginRequest))]
+[JsonSerializable(typeof(PasswordLoginResponse))]
 [JsonSerializable(typeof(JsonElement))]
 internal sealed partial class BffJsonContext : JsonSerializerContext;
 
@@ -48,6 +68,8 @@ internal static class BffResponses
     public const string InvalidRequest = "BFF_REQUISICAO_INVALIDA";
     public const string UnsupportedMediaType = "BFF_TIPO_NAO_SUPORTADO";
     public const string MethodNotAllowed = "BFF_METODO_NAO_PERMITIDO";
+    public const string InvalidCredentials = "BFF_CREDENCIAIS_INVALIDAS";
+    public const string TooManyAttempts = "BFF_TENTATIVAS_DEMAIS";
 
     private static readonly JsonSerializerOptions Options = CreateOptions();
 

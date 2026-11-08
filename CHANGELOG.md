@@ -17,6 +17,8 @@ Versão inaugural: *Backend for Frontend* das SPAs do ecossistema TEC.
 - **Telemetria**: `ActivitySource` e `Meter` `TEC.Bff`; métricas `tec.bff.login.completed`, `tec.bff.proxy.requests`, `tec.bff.token.refresh`, `tec.bff.csp.violations`; logs `EventId` 6001–6010.
 - **Validação das opções na subida** (`ValidateOnStart`): URL da API HTTPS, pasta da SPA com `index.html`, limites, e valores que entram em cabeçalhos sem injeção.
 - **Tema sazonal** (`GET /bff/theme` e `GET /bff/theme/assets/{id}/{file}`, opções `Theme.*`, desligado por padrão): busca o `themes.json` em URL fixa da configuração, valida com esquema fechado (os mesmos casos do pacote `@tudoemcodigo/theme`), escolhe o tema pela data de `America/Sao_Paulo`, entrega à SPA e serve os assets pela mesma origem, sem relaxar a CSP. Defesas: SSRF (só endereço público, sem redirecionamento), tempo limite e teto de bytes, assinatura das imagens, cache com `stale-if-error` e busca única por vez. Telemetria `tec.bff.theme.refresh` e logs 6011 e 6012 ([ADR 0002](docs/adr/0002-tema-sazonal-por-manifesto-fechado.md), [tema sazonal](docs/tema-sazonal.md)).
+- **Login por senha** (`POST /bff/login/password`, `BffPasswordLoginOptions`, desligado por padrão): troca no IdP com o client confidencial, sessão aberta por `WebLoginSignIn` do TEC.Security, resposta única `BFF_CREDENCIAIS_INVALIDAS`, limite por usuário e por endereço (`BFF_TENTATIVAS_DEMAIS`), logs 6013 e 6014 ([ADR 0003](docs/adr/0003-login-por-senha-na-tela-da-spa.md)).
+- **Dica de provedor** (`IdentityProviderHintParameter`): `GET /bff/login?idp=<alias>` vai direto ao provedor da empresa (`kc_idp_hint`), só com alias bem formado.
 - Testes (feliz e adversariais) e o exemplo `samples/TEC.Bff.Sample`.
 
 ### ⚠️ Limites e itens não verificados

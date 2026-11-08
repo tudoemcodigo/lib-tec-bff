@@ -14,7 +14,8 @@ O que o código da SPA precisa saber para falar com o `TEC.Bff`. Tudo acontece n
    - `401`: sem sessão. Navegue (não use `fetch`) para `/bff/login?returnUrl=/rota-atual`; o BFF leva ao provedor e, depois do login, volta para o `returnUrl`.
 3. Chamadas à API vão para `/api/...` na própria origem (o `fetch` envia o cookie por padrão em mesma origem; **não** use `credentials: 'include'` nem chame outro domínio).
 4. Toda chamada que **muda estado** (`POST`, `PUT`, `PATCH`, `DELETE`) leva o cabeçalho `X-TEC-CSRF: 1` (nome configurável em `BffOptions.CsrfHeaderName`).
-5. Logout: formulário `POST /bff/logout` (a CSP `form-action` precisa listar a origem do provedor de identidade em `Csp.FormActionOrigins`: o navegador bloqueia o redirecionamento do formulário para fora de `form-action`, e o logout não termina sem isso) (ou `fetch` do mesmo site). O BFF apaga a sessão, limpa o cookie e responde `302` ao encerramento de sessão do provedor; a SPA deve seguir o redirecionamento (num `fetch`, use um formulário ou navegue para o `Location`).
+5. Login por senha (só com `PasswordLogin.Enabled`): a tela da SPA faz `fetch('/bff/login/password', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-TEC-CSRF': '1' }, body: JSON.stringify({ username, password, returnUrl }) })`; com `200`, navegue para o `returnUrl` devolvido. Não guarde a senha em estado, storage ou log da SPA. O SSO da empresa continua sendo navegação para `/bff/login?idp=<alias>&returnUrl=...`.
+6. Logout: formulário `POST /bff/logout` (a CSP `form-action` precisa listar a origem do provedor de identidade em `Csp.FormActionOrigins`: o navegador bloqueia o redirecionamento do formulário para fora de `form-action`, e o logout não termina sem isso) (ou `fetch` do mesmo site). O BFF apaga a sessão, limpa o cookie e responde `302` ao encerramento de sessão do provedor; a SPA deve seguir o redirecionamento (num `fetch`, use um formulário ou navegue para o `Location`).
 
 ```ts
 // Exemplo (TypeScript): a SPA não conhece token nenhum
@@ -49,6 +50,8 @@ Corpo no envelope `ApiResponse` do TEC.Core, com `traceId`, sem detalhe interno:
 | 413 | `BFF_CORPO_GRANDE` | Corpo acima de `MaxRequestBodyBytes` (por `Content-Length` ou por leitura) |
 | 415 | `BFF_TIPO_NAO_SUPORTADO` | Relatório de CSP com tipo de conteúdo não aceito |
 | 5xx (502 ou 504, conforme o YARP decide) | `BFF_ERRO_UPSTREAM` | A API não respondeu ou estourou `ProxyTimeout` |
+| 401 | `BFF_CREDENCIAIS_INVALIDAS` | Login por senha (`POST /bff/login/password`) recusado: usuário inexistente, senha errada, conta bloqueada ou identidade recusada pelo TEC.Security; sempre a mesma resposta |
+| 429 | `BFF_TENTATIVAS_DEMAIS` | Login por senha acima do limite por usuário ou por endereço; traz `Retry-After` e não chega ao IdP |
 | 503 | `BFF_INDISPONIVEL` | Armazém de sessões cheio no login; ou, numa chamada `/api/**`, access token vencido com o provedor de identidade fora (só este caso traz `Retry-After: 5`) |
 
 As respostas da **API** (400, 404, 409, 428...) passam sem alteração.
