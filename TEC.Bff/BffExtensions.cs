@@ -50,6 +50,8 @@ public static class BffExtensions
         services.AddSingleton<BffProxyHandler>();
         services.AddSingleton<BffSpaHandler>();
         services.AddSingleton<ThemeStore>();
+        services.AddSingleton<BffLoginThrottle>();
+        services.AddSingleton<BffPasswordLogin>();
         services.AddHttpForwarder();
 
         // Sem redirecionamento (um 307 reenviaria credencial), sem cookie, sem proxy do sistema; o tempo limite é do encaminhador/da renovação
@@ -64,6 +66,7 @@ public static class BffExtensions
             .ConfigureHttpClient(c => c.Timeout = Timeout.InfiniteTimeSpan);
 
         BffLoginCapture.Register(services, runtime.OidcScheme);
+        BffIdentityProviderHint.Register(services, runtime.OidcScheme);
         return builder;
     }
 
@@ -98,8 +101,16 @@ public static class BffExtensions
         endpoints.MapGet(BffOptions.BasePath + "/login", Wrap(context =>
         {
             string? returnUrl = context.Request.Query["returnUrl"].Count == 1 ? context.Request.Query["returnUrl"][0] : null;
-            return context.ChallengeAsync(runtime.CookieScheme, new AuthenticationProperties { RedirectUri = CsrfGuard.SafeReturnUrl(returnUrl) });
+            var properties = new AuthenticationProperties { RedirectUri = CsrfGuard.SafeReturnUrl(returnUrl) };
+            // Entrada pelo provedor da empresa (SSO): só alias bem formado e só com o parâmetro configurado; senão, a tela do IdP
+            string? idp = context.Request.Query["idp"].Count == 1 ? context.Request.Query["idp"][0] : null;
+            if (options.IdentityProviderHintParameter is not null && BffIdentityProviderHint.IsValid(idp))
+                properties.Items[BffIdentityProviderHint.PropertyKey] = idp;
+            return context.ChallengeAsync(runtime.CookieScheme, properties);
         })).AllowAnonymous();
+
+        var passwordLogin = services.GetRequiredService<BffPasswordLogin>();
+        endpoints.MapPost(BffOptions.BasePath + "/login/password", Wrap(passwordLogin.HandleAsync)).AllowAnonymous();
 
         endpoints.MapPost(BffOptions.BasePath + "/logout", Wrap(async context =>
         {

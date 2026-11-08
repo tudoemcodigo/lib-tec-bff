@@ -53,8 +53,25 @@ internal sealed class BffOptionsValidator : IValidateOptions<BffOptions>
 
         ValidateCsp(options.Csp, failures);
         ValidateTheme(options.Theme, failures);
+        ValidatePasswordLogin(options, failures);
 
         return failures.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(failures);
+    }
+
+    private static void ValidatePasswordLogin(BffOptions options, List<string> failures)
+    {
+        if (options.IdentityProviderHintParameter is { } hint && !IsIdentifier(hint, 1, 64))
+            failures.Add("IdentityProviderHintParameter deve ter de 1 a 64 caracteres entre letras, dígitos e '_'.");
+
+        var login = options.PasswordLogin;
+        if (login.MaxAttemptsPerUser is < 1 or > 50)
+            failures.Add("PasswordLogin.MaxAttemptsPerUser deve ficar entre 1 e 50.");
+        if (login.MaxAttemptsPerAddress is < 1 or > 1000)
+            failures.Add("PasswordLogin.MaxAttemptsPerAddress deve ficar entre 1 e 1000.");
+        if (login.Window < TimeSpan.FromMinutes(1) || login.Window > TimeSpan.FromMinutes(60))
+            failures.Add("PasswordLogin.Window deve ficar entre 1 e 60 minutos.");
+        if (login.Timeout < TimeSpan.FromSeconds(1) || login.Timeout > TimeSpan.FromMinutes(1))
+            failures.Add("PasswordLogin.Timeout deve ficar entre 1 segundo e 1 minuto.");
     }
 
     private static void ValidateTheme(BffThemeOptions theme, List<string> failures)

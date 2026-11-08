@@ -8,5 +8,6 @@
 
 | ADR | Título | Status | Data | Contexto resumido |
 |:---:|:---|:---:|:---:|:---|
+| [0003](0003-login-por-senha-na-tela-da-spa.md) | **Login por senha na tela da SPA, trocado no IdP pelo client confidencial, e dica de provedor para o SSO** | Proposto | 2026-11-07 | Tela de login própria do GAP com SSO da empresa (ADR SEC 0002 da Doutrina) |
 | [0002](0002-tema-sazonal-por-manifesto-fechado.md) | **O BFF entrega o tema sazonal como manifesto fechado, buscado no servidor** | Proposto | 2026-11-04 | Trocar a identidade visual em datas comemorativas sem republicar as SPAs, sem relaxar a CSP |
 | [0001](0001-tokens-no-servidor-sem-savetokens.md) | **Tokens no servidor sem `SaveTokens`: captura pelos eventos do OIDC e armazém atrás de interface** | Proposto | 2026-11-03 | O TEC.Security proíbe `SaveTokens`; o BFF precisa dos tokens para o bearer e a renovação |

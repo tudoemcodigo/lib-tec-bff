@@ -39,6 +39,15 @@ public class DocumentationParityTests
         foreach (var property in typeof(BffCspOptions).GetProperties())
             await Assert.That(readme).Contains($"`Csp.{property.Name}`");
 
+        foreach (var property in typeof(BffPasswordLoginOptions).GetProperties())
+            await Assert.That(readme).Contains($"`PasswordLogin.{property.Name}`");
+        var senha = new BffPasswordLoginOptions();
+        await Assert.That(readme).Contains($"| `PasswordLogin.Enabled` | `{senha.Enabled.ToString().ToLowerInvariant()}` |");
+        await Assert.That(readme).Contains($"| `PasswordLogin.MaxAttemptsPerUser` | {senha.MaxAttemptsPerUser} ");
+        await Assert.That(readme).Contains($"| `PasswordLogin.MaxAttemptsPerAddress` | {senha.MaxAttemptsPerAddress} ");
+        await Assert.That(readme).Contains($"| `PasswordLogin.Window` | {senha.Window.TotalMinutes:0} minutos");
+        await Assert.That(readme).Contains($"| `PasswordLogin.Timeout` | {senha.Timeout.TotalSeconds:0} s");
+
         // Tema sazonal: toda opção pública com o padrão real
         foreach (var property in typeof(BffThemeOptions).GetProperties())
             await Assert.That(readme).Contains($"`Theme.{property.Name}`");
@@ -91,7 +100,7 @@ public class DocumentationParityTests
         await Assert.That(readme).Contains("MapTecBff");
         await Assert.That(publicTypes.Contains("BffExtensions")).IsTrue();
         // Nada de tipo público novo sem decisão de contrato (CMP-EST-08): a lista é fechada
-        string[] expected = ["BffCspOptions", "BffDiagnostics", "BffExtensions", "BffOptions", "BffThemeOptions", "BffTokenSet", "IBffSessionStore", "InMemoryBffSessionStore"];
+        string[] expected = ["BffCspOptions", "BffDiagnostics", "BffExtensions", "BffOptions", "BffPasswordLoginOptions", "BffThemeOptions", "BffTokenSet", "IBffSessionStore", "InMemoryBffSessionStore"];
         await Assert.That(publicTypes.OrderBy(n => n, StringComparer.Ordinal)).IsEquivalentTo(expected);
     }
 
@@ -109,8 +118,8 @@ public class DocumentationParityTests
             .Where(id => id is not null)
             .Select(id => id!.Value)
             .ToList();
-        await Assert.That(ids.Count).IsEqualTo(12);
-        await Assert.That(ids.All(id => id is >= 6001 and <= 6012)).IsTrue();   // faixa própria, sem sobreposição com os outros componentes
+        await Assert.That(ids.Count).IsEqualTo(14);
+        await Assert.That(ids.All(id => id is >= 6001 and <= 6014)).IsTrue();   // faixa própria, sem sobreposição com os outros componentes
         foreach (int id in ids)
             await Assert.That(doc).Contains($"| {id} |");
     }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace TEC.Bff.Internal;
 
 /// <summary>
-/// Mensagens de log do BFF (eventos 6001-6012, faixa própria do componente). Segurança: token, refresh token, identificador de sessão, cookie, corpo, URL com
+/// Mensagens de log do BFF (eventos 6001-6014, faixa própria do componente). Segurança: token, refresh token, identificador de sessão, cookie, corpo, URL com
 /// identificador e mensagem de exceção do provedor nunca são registrados; só desfecho, tipo da exceção e nomes de configuração.
 /// </summary>
 internal static partial class BffLog
@@ -43,4 +43,10 @@ internal static partial class BffLog
 
     [LoggerMessage(6012, LogLevel.Warning, "BFF: origem do tema indisponível; servindo o último documento válido.")]
     public static partial void ThemeServedStale(ILogger logger);
+
+    [LoggerMessage(6013, LogLevel.Warning, "BFF: login por senha recusado ({Reason}).")]
+    public static partial void PasswordLoginRefused(ILogger logger, string reason);
+
+    [LoggerMessage(6014, LogLevel.Information, "BFF: login por senha concluído, sessão criada no servidor.")]
+    public static partial void PasswordSessionCreated(ILogger logger);
 }

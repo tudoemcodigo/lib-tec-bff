@@ -133,7 +133,8 @@ O mesmo código compila no CI em [`samples/TEC.Bff.Sample`](https://github.com/t
 
 | Rota | Faz |
 |---|---|
-| `GET /bff/login?returnUrl=/caminho` | Inicia o login no provedor; `returnUrl` só aceita caminho local (senão vai para `/`) |
+| `GET /bff/login?returnUrl=/caminho` | Inicia o login no provedor; `returnUrl` só aceita caminho local (senão vai para `/`). Com `IdentityProviderHintParameter`, `&idp=<alias>` vai direto ao provedor da empresa (SSO), só com alias bem formado |
+| `POST /bff/login/password` | Login por senha na tela da SPA, desligado por padrão (`PasswordLogin.Enabled`, ADR 0003): JSON `{ "username", "password", "returnUrl" }`, cabeçalho anti-CSRF e mesma origem; o BFF troca no IdP com o client confidencial e abre a mesma sessão do fluxo de código. Resposta única `BFF_CREDENCIAIS_INVALIDAS` e limite de tentativas (`BFF_TENTATIVAS_DEMAIS`) |
 | `POST /bff/logout` | Apaga a sessão no servidor, limpa o cookie e redireciona ao encerramento de sessão do provedor; só da mesma origem (`Sec-Fetch-Site`/`Origin`) |
 | `GET /bff/user` | `{ "name": ..., "permissions": [...] }` da sessão; nunca devolve token. 401 sem sessão |
 | `POST /bff/csp-report` | Recebe os relatórios de violação da CSP; conta por diretiva (lista fechada) |
@@ -172,8 +173,15 @@ O mesmo código compila no CI em [`samples/TEC.Bff.Sample`](https://github.com/t
 | `Theme.MaxDocumentBytes` | 256 KiB (1 KiB a 1 MiB) |
 | `Theme.MaxAssetBytes` | 512 KiB (1 KiB a 2 MiB) |
 | `Theme.AllowPrivateNetworks` | `false`. `true` só em desenvolvimento: permite loopback, rede privada e HTTP em loopback |
+| `IdentityProviderHintParameter` | `null` (ignora `idp`). No Keycloak, `kc_idp_hint` |
+| `PasswordLogin` | login por senha, desligado por padrão: veja as opções `PasswordLogin.*` abaixo. Só ligue com ADR que autorize o sistema (Doutrina: ADR SEC 0002) |
+| `PasswordLogin.Enabled` | `false` |
+| `PasswordLogin.MaxAttemptsPerUser` | 5 (1 a 50) por janela |
+| `PasswordLogin.MaxAttemptsPerAddress` | 30 (1 a 1000) por janela |
+| `PasswordLogin.Window` | 5 minutos (1 a 60) |
+| `PasswordLogin.Timeout` | 10 s (1 a 60 s) |
 
-Tipos públicos: `BffOptions`, `BffCspOptions`, `BffThemeOptions`, `BffExtensions`. Pontos de extensão públicos: `IBffSessionStore` (armazém de sessões; padrão `InMemoryBffSessionStore`), `BffTokenSet` e `BffDiagnostics` (nomes de telemetria).
+Tipos públicos: `BffOptions`, `BffCspOptions`, `BffThemeOptions`, `BffPasswordLoginOptions`, `BffExtensions`. Pontos de extensão públicos: `IBffSessionStore` (armazém de sessões; padrão `InMemoryBffSessionStore`), `BffTokenSet` e `BffDiagnostics` (nomes de telemetria).
 
 ---
 

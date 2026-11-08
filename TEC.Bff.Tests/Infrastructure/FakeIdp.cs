@@ -60,6 +60,23 @@ internal sealed class FakeIdp : HttpMessageHandler
 
     public string? LastCodeVerifier { get; private set; }
 
+    /// <summary>Anuncia o endpoint de PAR na descoberta (como o Keycloak) e o atende.</summary>
+    public bool SupportsPar { get; set; }
+
+    /// <summary>Corpos recebidos no endpoint de PAR.</summary>
+    public List<string> PushedRequests { get; } = [];
+
+    public const string PasswordUser = "maria";
+    public const string PasswordValue = "senha-correta-123";
+
+    private int _passwordCalls;
+
+    /// <summary>Pedidos de <c>grant_type=password</c> que chegaram ao IdP (o limite do BFF corta antes de chegar).</summary>
+    public int PasswordCalls => Volatile.Read(ref _passwordCalls);
+
+    /// <summary>Substitui a resposta do fluxo de senha (indisponível, sem id_token).</summary>
+    public Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>>? PasswordBehavior { get; set; }
+
     public static HttpResponseMessage Json(string body, HttpStatusCode status = HttpStatusCode.OK) =>
         new(status) { Content = new StringContent(body, Encoding.UTF8, "application/json") };
 
@@ -70,6 +87,13 @@ internal sealed class FakeIdp : HttpMessageHandler
             return Json(Discovery());
         if (path.EndsWith("/protocol/openid-connect/certs", StringComparison.Ordinal))
             return Json(Jwks());
+        if (path.EndsWith("/protocol/openid-connect/ext/par/request", StringComparison.Ordinal) && request.Method == HttpMethod.Post)
+        {
+            string pushed = await request.Content!.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            lock (PushedRequests)
+                PushedRequests.Add(pushed);
+            return Json("{\"request_uri\":\"urn:ietf:params:oauth:request_uri:abc\",\"expires_in\":60}", HttpStatusCode.Created);
+        }
         if (path.EndsWith("/protocol/openid-connect/token", StringComparison.Ordinal) && request.Method == HttpMethod.Post)
             return await TokenAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -107,6 +131,18 @@ internal sealed class FakeIdp : HttpMessageHandler
                 return await behavior(request, cancellationToken).ConfigureAwait(false);
 
             return Json(TokenBody(includeIdToken: false));
+        }
+
+        if (values["grant_type"] == "password")
+        {
+            Interlocked.Increment(ref _passwordCalls);
+            if (PasswordBehavior is { } passwordBehavior)
+                return await passwordBehavior(request, cancellationToken).ConfigureAwait(false);
+            // Como o Keycloak: usuário inexistente e senha errada dão a mesma resposta (invalid_grant)
+            if (values["username"] != PasswordUser || values["password"] != PasswordValue || values["client_secret"] is null)
+                return Json("{\"error\":\"invalid_grant\",\"error_description\":\"Invalid user credentials\"}", HttpStatusCode.BadRequest);
+
+            return Json(TokenBody(includeIdToken: true));
         }
 
         return Json("{\"error\":\"unsupported_grant_type\"}", HttpStatusCode.BadRequest);
@@ -154,7 +190,15 @@ internal sealed class FakeIdp : HttpMessageHandler
         });
     }
 
-    private static string Discovery() => JsonSerializer.Serialize(new Dictionary<string, object>
+    private string Discovery() => JsonSerializer.Serialize(SupportsPar ? WithPar(DiscoveryValues()) : DiscoveryValues());
+
+    private static Dictionary<string, object> WithPar(Dictionary<string, object> values)
+    {
+        values["pushed_authorization_request_endpoint"] = Authority + "/protocol/openid-connect/ext/par/request";
+        return values;
+    }
+
+    private static Dictionary<string, object> DiscoveryValues() => new()
     {
         ["issuer"] = Authority,
         ["authorization_endpoint"] = Authority + "/protocol/openid-connect/auth",
@@ -165,7 +209,7 @@ internal sealed class FakeIdp : HttpMessageHandler
         ["subject_types_supported"] = new[] { "public" },
         ["id_token_signing_alg_values_supported"] = new[] { "RS256" },
         ["code_challenge_methods_supported"] = new[] { "S256" }
-    });
+    };
 
     private string Jwks()
     {

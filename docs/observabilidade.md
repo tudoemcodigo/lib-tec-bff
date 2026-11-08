@@ -25,7 +25,7 @@ Nenhum rótulo carrega usuário, sessão, token ou URL.
 | `TEC.Bff.Proxy` | Cada chamada `/api/**` |
 | `TEC.Bff.RefreshToken` | Cada pedido de renovação ao provedor |
 
-## Logs (`EventId` 6001 a 6012, faixa própria)
+## Logs (`EventId` 6001 a 6014, faixa própria)
 
 | EventId | Nível | Mensagem |
 |---|---|---|
@@ -41,6 +41,8 @@ Nenhum rótulo carrega usuário, sessão, token ou URL.
 | 6010 | Information | Cookie sem sessão no servidor (reinício ou expiração) |
 | 6011 | Warning | Busca do tema sazonal falhou (só a categoria: status, tamanho, tempo, tipo da exceção ou documento inválido; nunca o conteúdo) |
 | 6012 | Warning | Origem do tema indisponível; servindo o último documento válido |
+| 6013 | Warning | Login por senha recusado (só a categoria: credencial recusada, tentativas demais, IdP indisponível, identidade recusada; nunca usuário nem senha) |
+| 6014 | Information | Login por senha concluído, sessão criada no servidor |
 
 > [!WARNING]
 > Os logs do próprio YARP (`Yarp.ReverseProxy.*`) não são deste componente: em falha de rede trazem a mensagem da exceção do .NET (host e porta do destino).

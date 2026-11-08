@@ -114,6 +114,73 @@ internal sealed class OidcRefreshClient(
         }
     }
 
+    /// <summary>
+    /// Troca usuário e senha por tokens (<c>grant_type=password</c>) no mesmo endpoint e com o mesmo client confidencial do login
+    /// (ADR SEC 0002). A senha só vai no corpo do POST ao IdP; nunca a log, exceção, métrica nem resultado.
+    /// </summary>
+    public async Task<PasswordGrantResult> PasswordGrantAsync(string username, string password, TimeSpan timeoutAfter, CancellationToken cancellationToken)
+    {
+        using var activity = BffDiagnostics.ActivitySource.StartActivity("TEC.Bff.PasswordGrant");
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(timeoutAfter);
+
+        try
+        {
+            var oidc = oidcOptions.Get(runtime.OidcScheme);
+            var configuration = oidc.Configuration
+                                ?? await (oidc.ConfigurationManager ?? throw new InvalidOperationException("sem metadados do provedor"))
+                                    .GetConfigurationAsync(timeout.Token).ConfigureAwait(false);
+            if (!IsAcceptableEndpoint(configuration.TokenEndpoint))
+                return PasswordGrantResult.Unavailable("endpoint de token inválido");
+
+            string? secret = await ResolveClientSecretAsync(oidc, timeout.Token).ConfigureAwait(false);
+            // Fluxo de senha só com client confidencial: sem segredo o IdP aceitaria um client público
+            if (string.IsNullOrEmpty(secret))
+                return PasswordGrantResult.Unavailable("client sem segredo");
+
+            var scopes = oidc.Scope.Count > 0 ? string.Join(' ', oidc.Scope) : "openid";
+            var form = new List<KeyValuePair<string, string>>
+            {
+                new("grant_type", "password"),
+                new("username", username),
+                new("password", password),
+                new("client_id", oidc.ClientId ?? string.Empty),
+                new("client_secret", secret),
+                new("scope", scopes)
+            };
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, configuration.TokenEndpoint) { Content = new FormUrlEncodedContent(form) };
+            using var client = httpFactory.CreateClient(HttpClientName);
+            using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
+
+            int status = (int)response.StatusCode;
+            // 400 (invalid_grant), 401 e 403: credencial recusada, sem distinguir o motivo
+            if (status is 400 or 401 or 403)
+                return PasswordGrantResult.Rejected();
+            if (!response.IsSuccessStatusCode)
+                return PasswordGrantResult.Unavailable("status " + status.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+            byte[]? body = await ReadBoundedAsync(response.Content, timeout.Token).ConfigureAwait(false);
+            if (body is null)
+                return PasswordGrantResult.Unavailable("resposta grande demais");
+
+            var renewed = Parse(body);
+            TokenEndpointResponse? parsed = JsonSerializer.Deserialize(body, BffJsonContext.Default.TokenEndpointResponse);
+            if (renewed.Kind != RefreshKind.Renewed || parsed?.IdToken is not { Length: > 0 and <= MaxTokenLength } idToken)
+                return PasswordGrantResult.Unavailable("resposta sem id_token");
+
+            return PasswordGrantResult.Granted(renewed.AccessToken!, renewed.RefreshToken, idToken, renewed.ExpiresInSeconds);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception) when (exception is OperationCanceledException or HttpRequestException or InvalidOperationException or IOException or JsonException)
+        {
+            return PasswordGrantResult.Unavailable(exception.GetType().Name);
+        }
+    }
+
     private static RefreshResult Parse(byte[] body)
     {
         TokenEndpointResponse? parsed;

@@ -76,6 +76,37 @@ public sealed class BffOptions
 
     /// <summary>Tema sazonal entregue à SPA em <c>GET /bff/theme</c> (FRT-TEM-05). Desligado por padrão.</summary>
     public BffThemeOptions Theme { get; } = new();
+
+    /// <summary>
+    /// Login por senha na tela da própria SPA (<c>POST /bff/login/password</c>), trocada pelo BFF no IdP com o client confidencial
+    /// (ADR SEC 0002 da Doutrina). Desligado por padrão; só ligue com o ADR que autoriza o sistema.
+    /// </summary>
+    public BffPasswordLoginOptions PasswordLogin { get; } = new();
+
+    /// <summary>
+    /// Parâmetro de autorização que leva ao IdP o provedor escolhido em <c>GET /bff/login?idp=</c> (no Keycloak,
+    /// <c>kc_idp_hint</c>: vai direto ao provedor da empresa). <c>null</c> (padrão) ignora o <c>idp</c>.
+    /// </summary>
+    public string? IdentityProviderHintParameter { get; set; }
+}
+
+/// <summary>Limites do login por senha. A resposta é a mesma para usuário inexistente, senha errada e conta bloqueada.</summary>
+public sealed class BffPasswordLoginOptions
+{
+    /// <summary>Liga <c>POST /bff/login/password</c>. Padrão: desligado.</summary>
+    public bool Enabled { get; set; }
+
+    /// <summary>Tentativas por usuário dentro de <see cref="Window"/> (1 a 50). O IdP mantém o próprio bloqueio.</summary>
+    public int MaxAttemptsPerUser { get; set; } = 5;
+
+    /// <summary>Tentativas por endereço IP dentro de <see cref="Window"/> (1 a 1000).</summary>
+    public int MaxAttemptsPerAddress { get; set; } = 30;
+
+    /// <summary>Janela da contagem de tentativas (1 a 60 minutos).</summary>
+    public TimeSpan Window { get; set; } = TimeSpan.FromMinutes(5);
+
+    /// <summary>Tempo limite do pedido ao IdP (1 a 60 segundos).</summary>
+    public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(10);
 }
 
 /// <summary>Opções da CSP estrita (nonce por resposta, <c>strict-dynamic</c>) servida junto do HTML da SPA.</summary>
